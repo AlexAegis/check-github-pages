@@ -1,0 +1,48 @@
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#runs-for-javascript-actions
+name: "check github pages"
+description: |
+  Checks if Github Pages is available on your repository and load its metadata
+author: "alexaegis"
+# https://github.com/haya14busa/github-action-brandings
+branding:
+  color: "blue"
+  icon: "check-circle"
+inputs:
+  enforced_build_type:
+    description: |
+      GitHub Pages can be built from a branch ("legacy") or from an action ("workflow")
+      The default value is "workflow"
+    default: "workflow"
+    required: false
+outputs:
+  metadata:
+    value: ${{ steps.fetch_data.outputs.metadata }}
+    description: |
+      The return value of the api call
+  is_enabled:
+    value: ${{ steps.check_pages.outputs.is_enabled }}
+    description: |
+      true if GitHub pages is enabled in this repository and is the type
+      set by enforced_build_type, which is "workflow" by default
+runs:
+  using: "composite"
+  steps:
+    - name: fetch github pages data
+      id: fetch_data
+      shell: bash
+      run: |
+        response=$(curl -s -L -H "Authorization: token ${{ github.token }}" \
+          "https://api.github.com/repos/${{ github.repository }}/pages" | jq -c)
+        echo "metadata=$response" >> $GITHUB_OUTPUT
+    - name: check if github pages is enabled
+      id: check_pages
+      shell: bash
+      env:
+        INPUT_BUILD_TYPE: ${{ inputs.enforced_build_type }}
+      run: |
+        echo metadata: ${{ steps.fetch_data.outputs.metadata }}
+        is_enabled="false"
+        if [ "${{ fromJSON(steps.fetch_data.outputs.metadata).build_type }}" = "$INPUT_BUILD_TYPE" ]; then
+          is_enabled="true"
+        fi
+        echo "is_enabled=$is_enabled" >> $GITHUB_OUTPUT

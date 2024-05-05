@@ -1,0 +1,40 @@
+name: simple-test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: "**"
+
+jobs:
+  check-github-pages:
+    runs-on: ubuntu-latest
+    outputs:
+      is_enabled: ${{ steps.check-github-pages.outputs.is_enabled }}
+      metadata: ${{ steps.check-github-pages.outputs.metadata }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: check availability of github pages
+        id: check-github-pages
+        uses: ./
+  print:
+    name: print results
+    runs-on: ubuntu-latest
+    needs: [check-github-pages]
+    steps:
+      - name: print package data
+        run: |
+          echo github pages metadata: ${{ needs.check-github-pages.outputs.metadata }}
+          echo github pages is_enabled: ${{ needs.check-github-pages.outputs.is_enabled }}
+  print-when-enabled:
+    name: print results
+    runs-on: ubuntu-latest
+    if: needs.check-github-pages.outputs.is_enabled
+    needs: [check-github-pages]
+    steps:
+      - name: print package data
+        run: |
+          echo github pages metadata: ${{ needs.check-github-pages.outputs.metadata }}
+          echo github pages is_enabled: ${{ needs.check-github-pages.outputs.is_enabled }}
