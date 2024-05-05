@@ -1,5 +1,7 @@
 # [check-github-pages](https://github.com/marketplace/actions/check-github-pages)
 
+[![ci](https://github.com/AlexAegis/check-github-pages/actions/workflows/simple-test.yml/badge.svg)](https://github.com/AlexAegis/check-github-pages/actions/workflows/simple-test.yml)
+
 A github action to make your github pages metadata available in ci
 
 ## Use
