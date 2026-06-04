@@ -19,6 +19,8 @@ on:
 jobs:
   check-pages:
     runs-on: ubuntu-latest
+    permissions:
+      pages: read
     outputs:
       pages_enabled: ${{ steps.check_pages.outputs.is_enabled }}
     steps:
@@ -28,7 +30,7 @@ jobs:
   print:
     name: print results
     runs-on: ubuntu-latest
-    if: needs.check-pages.outputs.is_enabled
+    if: needs.check-pages.outputs.pages_enabled == 'true'
     needs: [check-pages]
     steps:
       - name: print package data
